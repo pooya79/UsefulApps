@@ -1,0 +1,10 @@
+import { mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { Store } from './database.js';
+import { createApp } from './app.js';
+const path = process.env.DATA_PATH || './data/ideavault.db';
+mkdirSync(dirname(path), { recursive: true });
+const store = new Store(path);
+const app = createApp(store, process.env.NODE_ENV === 'production');
+await app.listen({ port: Number(process.env.PORT || 3002), host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1' });
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await app.close(); store.db.close(); process.exit(0); });

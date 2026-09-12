@@ -3,9 +3,10 @@ SHELL := /bin/sh
 .DEFAULT_GOAL := help
 
 ROOZNEGAAR_COMPOSE := docker compose --project-name usefulapps-rooznegaar --file apps/rooznegaar/docker-compose.yml
+IDEAVAULT_COMPOSE := docker compose --project-name usefulapps-ideavault --file apps/ideavault/docker-compose.yml
 SCOREBOARD_COMPOSE := docker compose --project-name usefulapps-scoreboard --file apps/scoreboard/docker-compose.yml
 
-.PHONY: help rooznegaar rooznegaar-down scoreboard scoreboard-down
+.PHONY: help rooznegaar rooznegaar-down scoreboard scoreboard-down ideavault ideavault-down
 
 help: ## Show the available commands.
 	@printf '%s\n' \
@@ -15,6 +16,9 @@ help: ## Show the available commands.
 		'  make rooznegaar-down          Stop Rooznegaar' \
 		'  make scoreboard PORT=3000     Build and run Scoreboard on port 3000' \
 		'  make scoreboard-down          Stop Scoreboard' \
+		'' \
+		'  make ideavault PORT=3002      Build and run IdeaVault on port 3002' \
+		'  make ideavault-down           Stop IdeaVault; preserve your library' \
 		'' \
 		'PORT is required and must be an integer from 1 through 65535.'
 
@@ -42,3 +46,11 @@ validate-port:
 			printf 'Error: PORT must be between 1 and 65535.\n' >&2; exit 2; \
 		fi ;; \
 	esac
+
+ideavault: ## Build and run IdeaVault. Usage: make ideavault PORT=3002
+	@$(MAKE) --no-print-directory validate-port APP_NAME=ideavault
+	@APP_PORT=$(PORT) $(IDEAVAULT_COMPOSE) up --detach --build
+	@printf 'IdeaVault is available at http://localhost:%s\n' '$(PORT)'
+
+ideavault-down: ## Stop IdeaVault and preserve its SQLite volume.
+	@APP_PORT=1 $(IDEAVAULT_COMPOSE) down
