@@ -1,0 +1,15 @@
+services:
+  scoreboard:
+    build: .
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Tehran
+    ports:
+      - "${APP_PORT:?APP_PORT must be set}:3000"
+    volumes:
+      - ./config:/app/config
+      - scoreboard-data:/app/data
+
+volumes:
+  scoreboard-data:
+    name: usefulapps-scoreboard-data

@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "settings": {
+    "timezone": "Asia/Tehran",
+    "weekStartsOn": "saturday"
+  },
+  "metrics": [
+    {
+      "id": "book-pages",
+      "name": "English Book Pages",
+      "category": "English",
+      "unit": "page",
+      "precision": 0,
+      "color": "#6c63ff",
+      "icon": "book-open",
+      "quickAdd": [
+        5,
+        10,
+        20
+      ],
+      "target": {
+        "period": "daily",
+        "value": 20
+      }
+    },
+    {
+      "id": "english-units",
+      "name": "English Units",
+      "category": "English",
+      "unit": "units",
+      "precision": 0,
+      "color": "#22c997",
+      "icon": "languages",
+      "quickAdd": [
+        1,
+        2,
+        3
+      ],
+      "target": {
+        "period": "daily",
+        "value": 3
+      }
+    },
+    {
+      "id": "english-speaking",
+      "name": "English Speaking",
+      "category": "English",
+      "unit": "minutes",
+      "precision": 0,
+      "color": "#6c63ff",
+      "icon": "person-standing",
+      "quickAdd": [
+        1,
+        5,
+        10
+      ],
+      "target": {
+        "period": "weekly",
+        "value": 60
+      }
+    },
+    {
+      "id": "exercise-sets",
+      "name": "Exercise Sets",
+      "category": "Exercise",
+      "unit": "sets",
+      "precision": 0,
+      "color": "#31a8ff",
+      "icon": "dumbbell",
+      "quickAdd": [
+        1,
+        5,
+        10
+      ],
+      "target": {
+        "period": "daily",
+        "value": 10
+      }
+    }
+  ]
+}
