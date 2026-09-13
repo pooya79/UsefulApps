@@ -1,7 +1,5 @@
 # IdeaVault
 
-> Work-in-progress checkpoint: dependency downloads were blocked during implementation. Generate and commit `package-lock.json` with `npm install`, then run the checks below before deployment. Tests, type checking, production build, and browser/run-down verification are not yet complete. The Dockerfile uses `npm ci` and requires that lockfile. Compose configuration and Make port validation have passed.
-
 A single-user Markdown workspace for ideas organized into projects and flat, ordered documents. React 19 provides a warm editorial dashboard, split source/preview editor, search, project colors, light/dark/system themes, and mobile Write/Preview tabs. Fastify and SQLite own the library; nothing relies on browser storage except the theme preference.
 
 ## Run and stop
