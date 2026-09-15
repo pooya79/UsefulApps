@@ -22,6 +22,7 @@ This is a personal app for a trusted local/private network. There is no authenti
 - Saves are debounced by 650 ms and checked against the document revision. Navigation waits for pending saves. If another tab or import changed the document, the draft stays in the editor with an error and Copy draft / Load latest actions. Browser close warns about unsaved text; drafts are not a separate durable backup.
 - Use arrow buttons beside projects/documents to reorder them with a mouse, touch, or keyboard. Search matches document titles and Markdown content using SQLite FTS5 word-prefix search (all entered terms must match).
 - Markdown supports GFM tables, task lists, code fences, blockquotes, and links. Raw HTML is ignored, unsafe link protocols are removed, and images render as text placeholders. Attachments and image uploads are out of scope.
+- In the Markdown editor, Tab inserts four spaces (or indents every selected line); Shift+Tab removes up to four leading spaces.
 - Trashing a project hides all its documents. Restoring it keeps individually trashed documents in trash. Restore the parent before restoring a child. Permanent project deletion also deletes its children and records deletion tombstones.
 - Theme follows the operating system unless explicitly changed; the choice is remembered on the device.
 

@@ -1,8 +1,9 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent } from 'react';
 import { Check, CloudUpload, Copy, FileText, RefreshCw } from 'lucide-react';
 import type { Document } from '../shared/schema';
 import { api } from './api';
 import { Markdown } from './Markdown';
+import { editIndent } from './editorIndent';
 export type EditorHandle = { flush: () => Promise<boolean> };
 export const Editor = forwardRef<EditorHandle, { document: Document; onSaved: (doc: Document) => void }>(function Editor({ document, onSaved }, ref) {
   const [draft, setDraft] = useState(document);
@@ -35,6 +36,14 @@ export const Editor = forwardRef<EditorHandle, { document: Document; onSaved: (d
     if (!window.confirm('Discard this unsaved draft and load the latest saved version? Copy the draft first if you need it.')) return;
     try { const result = await api<Document>(`/documents/${document.id}`); latest.current = result; saved.current = result; setDraft(result); onSaved(result); setStatus('Saved'); setError(''); } catch (e) { setError((e as Error).message); }
   };
+  const indent = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== 'Tab') return;
+    event.preventDefault();
+    const textarea = event.currentTarget;
+    const edit = editIndent(draft.content, textarea.selectionStart, textarea.selectionEnd, event.shiftKey);
+    change({ content: edit.content });
+    requestAnimationFrame(() => textarea.setSelectionRange(edit.selectionStart, edit.selectionEnd));
+  };
   const words = draft.content.trim() ? draft.content.trim().split(/\s+/).length : 0;
   return <section className="editor" aria-label="Document editor">
     <div className="editor-heading"><div className="eyebrow"><FileText size={14}/> YOUR DOCUMENT</div><div className={`save-state ${status === 'Error' ? 'danger-text' : ''}`} role="status">{status === 'Saved' ? <Check size={14}/> : <CloudUpload size={14}/>} {status}</div></div>
@@ -42,7 +51,7 @@ export const Editor = forwardRef<EditorHandle, { document: Document; onSaved: (d
     <div className="document-meta">A little space to think, explore, and connect the dots.<span>{words} words · Revision {saved.current.revision}</span></div>
     {error && <div className="save-error" role="alert"><span>{error} Your draft is still in this editor.</span><button onClick={() => void flush()}><CloudUpload size={14}/> Retry save</button><button onClick={() => void navigator.clipboard.writeText(`${draft.title}\n\n${draft.content}`).catch(() => setError('Clipboard unavailable. Select and copy the text from the editor.'))}><Copy size={14}/> Copy draft</button><button onClick={() => void reload()}><RefreshCw size={14}/> Load latest</button></div>}
     <div className="mobile-tabs" role="tablist" aria-label="Editor view"><button role="tab" aria-selected={tab === 'write'} onClick={() => setTab('write')}>Write</button><button role="tab" aria-selected={tab === 'preview'} onClick={() => setTab('preview')}>Preview</button></div>
-    <div className={`editor-panes show-${tab}`}><div className="source-pane"><div className="pane-label">MARKDOWN <span>Write freely.</span></div><textarea aria-label="Markdown source" spellCheck value={draft.content} onChange={e => change({ content: e.target.value })} placeholder={'# A spark of an idea\n\nStart writing. This space is yours.\n\n- What if…\n- Why does it matter?\n- What comes next?'} /></div><div className="preview-pane"><div className="pane-label">LIVE PREVIEW <span>Watch it take shape.</span></div>{draft.content ? <Markdown content={draft.content}/> : <div className="preview-empty"><span>Every good idea<br/>starts somewhere.</span><p>Your words will appear here as you write.</p></div>}</div></div>
+    <div className={`editor-panes show-${tab}`}><div className="source-pane"><div className="pane-label">MARKDOWN <span>Write freely.</span></div><textarea aria-label="Markdown source" spellCheck value={draft.content} onChange={e => change({ content: e.target.value })} onKeyDown={indent} placeholder={'# A spark of an idea\n\nStart writing. This space is yours.\n\n- What if…\n- Why does it matter?\n- What comes next?'} /></div><div className="preview-pane"><div className="pane-label">LIVE PREVIEW <span>Watch it take shape.</span></div>{draft.content ? <Markdown content={draft.content}/> : <div className="preview-empty"><span>Every good idea<br/>starts somewhere.</span><p>Your words will appear here as you write.</p></div>}</div></div>
     <footer className="editor-footer"><span>Markdown & GFM supported</span><span>Autosaved to your library</span></footer>
   </section>;
 });
