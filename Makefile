@@ -4,9 +4,13 @@ SHELL := /bin/sh
 
 ROOZNEGAAR_COMPOSE := docker compose --project-name usefulapps-rooznegaar --file apps/rooznegaar/docker-compose.yml
 IDEAVAULT_COMPOSE := docker compose --project-name usefulapps-ideavault --file apps/ideavault/docker-compose.yml
+MARKDOWN_EDITOR_COMPOSE := docker compose --project-name usefulapps-markdown-editor --file apps/markdown-editor/docker-compose.yml
+FILES_DIR ?= $(CURDIR)
+BROWSE_DIR ?= $(HOME)
+
 SCOREBOARD_COMPOSE := docker compose --project-name usefulapps-scoreboard --file apps/scoreboard/docker-compose.yml
 
-.PHONY: help rooznegaar rooznegaar-down scoreboard scoreboard-down ideavault ideavault-down
+.PHONY: help rooznegaar rooznegaar-down scoreboard scoreboard-down ideavault ideavault-down markdown-editor markdown-editor-down
 
 help: ## Show the available commands.
 	@printf '%s\n' \
@@ -19,6 +23,10 @@ help: ## Show the available commands.
 		'' \
 		'  make ideavault PORT=3002      Build and run IdeaVault on port 3002' \
 		'  make ideavault-down           Stop IdeaVault; preserve your library' \
+		'' \
+		'  make markdown-editor PORT=3004  Build and run Markdown Editor' \
+		'  make markdown-editor-down       Stop Markdown Editor; preserve files and history' \
+		'  Optional: FILES_DIR=/path selects the starting folder; BROWSE_DIR=/path sets the browsing root' \
 		'' \
 		'PORT is required and must be an integer from 1 through 65535.'
 
@@ -54,3 +62,14 @@ ideavault: ## Build and run IdeaVault. Usage: make ideavault PORT=3002
 
 ideavault-down: ## Stop IdeaVault and preserve its SQLite volume.
 	@APP_PORT=1 $(IDEAVAULT_COMPOSE) down
+
+markdown-editor: ## Build and run Markdown Editor. Usage: make markdown-editor PORT=3004 [FILES_DIR=/path]
+	@$(MAKE) --no-print-directory validate-port APP_NAME=markdown-editor
+	@test -d '$(FILES_DIR)' || { printf 'Error: FILES_DIR must be an existing directory.\n' >&2; exit 2; }
+	@test -d '$(BROWSE_DIR)' || { printf 'Error: BROWSE_DIR must be an existing directory.\n' >&2; exit 2; }
+	@case '$(abspath $(FILES_DIR))/' in '$(patsubst %/,%,$(abspath $(BROWSE_DIR)))/'*) ;; *) printf 'Error: FILES_DIR must be inside BROWSE_DIR. Set BROWSE_DIR to a common parent.\n' >&2; exit 2 ;; esac
+	@APP_PORT=$(PORT) BROWSE_DIR='$(abspath $(BROWSE_DIR))' FILES_DIR='$(abspath $(FILES_DIR))' LOCAL_UID=$$(id -u) LOCAL_GID=$$(id -g) $(MARKDOWN_EDITOR_COMPOSE) up --detach --build
+	@printf 'Markdown Editor is available at http://localhost:%s\n' '$(PORT)'
+
+markdown-editor-down: ## Stop Markdown Editor and preserve local files and its SQLite volume.
+	@APP_PORT=1 BROWSE_DIR='$(abspath $(BROWSE_DIR))' FILES_DIR='$(abspath $(FILES_DIR))' $(MARKDOWN_EDITOR_COMPOSE) down

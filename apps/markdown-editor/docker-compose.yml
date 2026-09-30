@@ -1,0 +1,26 @@
+services:
+  markdown-editor:
+    build: .
+    restart: unless-stopped
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    environment:
+      WORKSPACE_LABEL: "${BROWSE_DIR:?BROWSE_DIR must be set}"
+      INITIAL_WORKSPACE: "${FILES_DIR:?FILES_DIR must be set}"
+    ports:
+      - "127.0.0.1:${APP_PORT:?APP_PORT must be set}:3000"
+    volumes:
+      - markdown-editor-data:/app/data
+      - type: bind
+        source: "${BROWSE_DIR:?BROWSE_DIR must be set}"
+        target: /folders
+        bind:
+          create_host_path: false
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+volumes:
+  markdown-editor-data:
+    name: usefulapps-markdown-editor-data

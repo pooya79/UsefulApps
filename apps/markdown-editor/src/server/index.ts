@@ -1,0 +1,12 @@
+import { mkdirSync } from 'node:fs';
+import { dirname, relative } from 'node:path';
+import { Workspace } from './workspace.js';
+import { createApp } from './app.js';
+const database = process.env.DATA_PATH || './data/markdown-editor.db';
+mkdirSync(dirname(database), { recursive: true });
+const workspace = new Workspace(process.env.FILES_ROOT || '../..', database, process.env.WORKSPACE_LABEL);
+const initial = process.env.INITIAL_WORKSPACE ? relative(workspace.identity, process.env.INITIAL_WORKSPACE) : '';
+workspace.at(initial);
+const app = createApp(workspace, process.env.NODE_ENV === 'production', process.env.WORKSPACE_LABEL, initial);
+await app.listen({ port: Number(process.env.PORT || 3004), host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1' });
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await app.close(); workspace.db.close(); process.exit(0); });

@@ -52,6 +52,17 @@ make ideavault-down
 
 Open <http://localhost:3002>. Export the complete library as one JSON file and import it on another installation. Merge previews require explicit conflict choices, including permanent-deletion conflicts; replace requires confirmation. Imports are transactional. Use only on a trusted local/private network; authentication is out of scope. See [IdeaVault's README](apps/ideavault/README.md) for backup semantics, architecture, configuration, and development details.
 
+### Markdown Editor
+
+Markdown Editor edits local Markdown files with collapsible, resizable Files / Editor / Preview panes, autosave, Ctrl/Cmd+S, Persian RTL, and light/dark themes. The TypeScript server writes directly to the mounted host folder and detects conflicting external edits.
+
+```bash
+make markdown-editor PORT=3004
+make markdown-editor-down
+```
+
+Open <http://localhost:3004>. The starting folder is this repository. Use **Change workspace** in the toolbar to browse and select folders under your home directory. Use `FILES_DIR=/absolute/path` to change the starting folder, or `BROWSE_DIR=/absolute/path` to change the browsing root; the starting folder must be inside that root. The app binds to localhost and runs as your host UID/GID. Local files stay in that folder; SQLite stores recent-file history. See [Markdown Editor's README](apps/markdown-editor/README.md) for file permissions, supported Markdown, saving, and development.
+
 `PORT` is required for every run command and must be an integer from `1` through `65535`. Choose different ports when running multiple apps at once.
 
 ## Runtime and data
@@ -63,6 +74,7 @@ SQLite data is kept in named Docker volumes and is preserved by the down command
 - Rooznegaar: `usefulapps-rooznegaar-data`
 - Scoreboard: `usefulapps-scoreboard-data`
 - IdeaVault: `usefulapps-ideavault-data`
+- Markdown Editor: `usefulapps-markdown-editor-data` (recent-file history; Markdown files remain in the mounted host folder)
 
 Scoreboard's metric definitions are stored in [`apps/scoreboard/config/metrics.json`](apps/scoreboard/config/metrics.json) and mounted into its container. Rooznegaar offers a JSON backup from its Settings screen; Scoreboard can export CSV from History.
 
@@ -74,7 +86,8 @@ Scoreboard's metric definitions are stored in [`apps/scoreboard/config/metrics.j
 ├── apps
 │   ├── rooznegaar
 │   ├── scoreboard
-│   └── ideavault
+│   ├── ideavault
+│   └── markdown-editor
 ├── AGENTS.md
 └── README.md
 ```
@@ -102,6 +115,14 @@ npm run build
 
 ```bash
 cd apps/ideavault
+npm ci
+npm test
+npm run typecheck
+npm run build
+```
+
+```bash
+cd apps/markdown-editor
 npm ci
 npm test
 npm run typecheck

@@ -39,3 +39,4 @@ Add both commands to `make help` and the root README. Give its Compose project a
 - `apps/rooznegaar`: React/Vite frontend with a Fastify API and `better-sqlite3`.
 - `apps/scoreboard`: React/Vite frontend with a Fastify API and `better-sqlite3`.
 - `apps/ideavault`: React/Vite Markdown workspace with a Fastify API and `better-sqlite3`.
+- `apps/markdown-editor`: React/Vite local-file Markdown editor with a Fastify API and `better-sqlite3` recent history.
